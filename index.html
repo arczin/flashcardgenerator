@@ -18,12 +18,13 @@
         }
 
         body {
-            font-family: --font-sans;
+            font-family: var(--font-sans);
             background-color: #F5F3EE;
             color: #2D1B0E;
             line-height: 1.6;
             min-height: 100vh;
             padding: 20px;
+            cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='64'%20height='64'%20viewBox='0%200%2064%2064'%3E%3Cpath%20fill='%237A7DFF'%20stroke='%231E1F66'%20stroke-width='4'%20stroke-linejoin='round'%20d='M8%206%20v52l16-14%2010%2018%2010-6-10-18h18z'/%3E%3Ccircle%20cx='26'%20cy='20'%20r='6'%20fill='%23FFD03D'%20stroke='%231E1F66'%20stroke-width='3'/%3E%3C/svg%3E")%204%204, auto;
         }
 
         .container {
@@ -151,6 +152,90 @@
             gap: 12px;
             margin-top: 20px;
             flex-wrap: wrap;
+        }
+
+        .primary-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .folder-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .folder-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #B6D8FF 0%, #6EA9FF 100%);
+            color: #1F4C8C;
+            font-family: var(--font-sans);
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 3px 10px rgba(31, 76, 140, 0.2);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .folder-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(31, 76, 140, 0.25);
+        }
+
+        .folder-button:active {
+            transform: translateY(0);
+        }
+
+        .folder-icon {
+            position: relative;
+            width: 26px;
+            height: 18px;
+            border-radius: 6px 6px 10px 10px;
+            background: linear-gradient(180deg, #BBD9FF 0%, #78B2FF 100%);
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .folder-icon::before {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 7px;
+            top: -5px;
+            left: 3px;
+            border-radius: 5px 5px 0 0;
+            background: linear-gradient(180deg, #D6E8FF 0%, #9EC8FF 100%);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-bottom: none;
+        }
+
+        #folderSelect {
+            font-family: var(--font-sans);
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid #D4CEC1;
+            background-color: white;
+            color: #2D1B0E;
+            min-width: 200px;
+            box-shadow: 0 2px 8px rgba(45, 27, 14, 0.08);
+            cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #folderSelect:hover,
+        #folderSelect:focus {
+            border-color: #CC785C;
+            box-shadow: 0 4px 12px rgba(204, 120, 92, 0.2);
+            outline: none;
         }
 
         button {
@@ -584,10 +669,10 @@
 
         <!-- Navigation Tabs -->
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('create')">Create Cards</button>
-            <button class="tab" onclick="switchTab('study')">Study</button>
-            <button class="tab" onclick="switchTab('stats')">Statistics</button>
-            <button class="tab" onclick="switchTab('data')">Data & Settings</button>
+            <button class="tab active" data-tab="create" onclick="switchTab('create', this)">Create Cards</button>
+            <button class="tab" data-tab="study" onclick="switchTab('study', this)">Study</button>
+            <button class="tab" data-tab="stats" onclick="switchTab('stats', this)">Statistics</button>
+            <button class="tab" data-tab="data" onclick="switchTab('data', this)">Data & Settings</button>
         </div>
 
         <!-- Alert Container -->
@@ -608,8 +693,17 @@ What is 2 + 2?
 --- A ---
 4</div>
                 <textarea id="flashcardInput" placeholder="Paste your formatted flashcards here..."></textarea>
-                <div class="button-group">
+                <div class="primary-actions">
                     <button class="btn-primary" onclick="parseFlashcards()">Create Flashcards</button>
+                    <div class="folder-controls">
+                        <button class="folder-button" type="button" onclick="promptNewFolder()">
+                            <span class="folder-icon" aria-hidden="true"></span>
+                            <span>New Folder</span>
+                        </button>
+                        <select id="folderSelect" aria-label="Select folder for new flashcards" onchange="handleFolderChange(event)"></select>
+                    </div>
+                </div>
+                <div class="button-group">
                     <button class="btn-secondary" onclick="clearInput()">Clear</button>
                     <button class="btn-secondary btn-small" onclick="loadExample()">Load Example</button>
                 </div>
@@ -626,6 +720,7 @@ What is 2 + 2?
                     <button class="btn-primary session-btn" onclick="startSession('due')">Review Due Cards</button>
                     <button class="btn-primary session-btn" onclick="startSession('difficult')">Practice Difficult</button>
                     <button class="btn-secondary session-btn" onclick="startSession('shuffle')">Shuffle Mode</button>
+                    <button class="btn-secondary session-btn" onclick="startFolderStudy()">Study by Folder</button>
                 </div>
             </div>
 
@@ -736,11 +831,16 @@ What is 2 + 2?
         // DATA STRUCTURES & STATE
 
         let flashcards = [];
+        let folders = [];
+        let selectedFolderId = null;
+        const NO_FOLDER_OPTION = '__NO_FOLDER__';
         let currentSession = {
             cards: [],
             currentIndex: 0,
             mode: null,
-            startTime: null
+            startTime: null,
+            folderId: null,
+            folderName: null
         };
 
         let statistics = {
@@ -768,10 +868,131 @@ What is 2 + 2?
             playClickSound();
         });
 
+        function getFolderNameById(id) {
+            if (!id) return null;
+            const folder = folders.find(entry => entry.id === id);
+            return folder ? folder.name : null;
+        }
+
+        function renderFolderOptions() {
+            const select = document.getElementById('folderSelect');
+            if (!select) return;
+
+            const hasFolders = Array.isArray(folders) && folders.length > 0;
+            const sortedFolders = hasFolders
+                ? [...folders].sort((a, b) => a.name.localeCompare(b.name))
+                : [];
+
+            select.innerHTML = '';
+
+            const defaultOption = document.createElement('option');
+            defaultOption.value = NO_FOLDER_OPTION;
+            defaultOption.textContent = hasFolders ? 'No Folder' : 'No folders yet';
+            select.appendChild(defaultOption);
+
+            sortedFolders.forEach(folder => {
+                const option = document.createElement('option');
+                option.value = folder.id;
+                option.textContent = folder.name;
+                select.appendChild(option);
+            });
+
+            const valueToSelect = selectedFolderId && sortedFolders.some(folder => folder.id === selectedFolderId)
+                ? selectedFolderId
+                : NO_FOLDER_OPTION;
+
+            if (valueToSelect === NO_FOLDER_OPTION) {
+                selectedFolderId = null;
+            }
+
+            select.value = valueToSelect;
+            select.disabled = !hasFolders;
+        }
+
+        function handleFolderChange(event) {
+            const value = event.target.value;
+            selectedFolderId = value === NO_FOLDER_OPTION ? null : value;
+            saveToStorage();
+        }
+
+        function promptNewFolder() {
+            const response = prompt('Name your folder:');
+            if (response === null) {
+                return;
+            }
+
+            const name = response.trim();
+            if (!name) {
+                showAlert('Folder name cannot be empty.', 'error');
+                return;
+            }
+
+            const duplicated = folders.some(folder => folder.name.toLowerCase() === name.toLowerCase());
+            if (duplicated) {
+                showAlert('A folder with that name already exists.', 'error');
+                return;
+            }
+
+            const newFolder = {
+                id: 'fld-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+                name: name,
+                created: new Date().toISOString()
+            };
+
+            folders.push(newFolder);
+            selectedFolderId = newFolder.id;
+            renderFolderOptions();
+            saveToStorage();
+            showAlert(`Folder "${name}" created.`, 'success');
+        }
+
+        function ensureFolderConsistency() {
+            if (!Array.isArray(folders)) {
+                folders = [];
+            }
+
+            folders = folders.filter(folder => folder && typeof folder.id === 'string' && typeof folder.name === 'string');
+            const validFolderIds = new Set(folders.map(folder => folder.id));
+            let dirty = false;
+
+            flashcards.forEach(card => {
+                if (!card) {
+                    return;
+                }
+
+                if (typeof card.folderId === 'undefined') {
+                    card.folderId = null;
+                    dirty = true;
+                    return;
+                }
+
+                if (card.folderId === null) {
+                    return;
+                }
+
+                if (!validFolderIds.has(card.folderId)) {
+                    card.folderId = null;
+                    dirty = true;
+                }
+            });
+
+            if (selectedFolderId && !validFolderIds.has(selectedFolderId)) {
+                selectedFolderId = null;
+                dirty = true;
+            }
+
+            return dirty;
+        }
+
         // INITIALIZATION
 
         function init() {
             loadFromStorage();
+            const needsSave = ensureFolderConsistency();
+            renderFolderOptions();
+            if (needsSave) {
+                saveToStorage();
+            }
             updateStatistics();
             checkIfCardsExist();
         }
@@ -782,10 +1003,17 @@ What is 2 + 2?
 
         // TAB SWITCHING
 
-        function switchTab(tabName) {
+        function switchTab(tabName, trigger = null) {
             // Update tab buttons
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
+            if (trigger && trigger.classList) {
+                trigger.classList.add('active');
+            } else {
+                const fallback = document.querySelector(`.tab[data-tab="${tabName}"]`);
+                if (fallback) {
+                    fallback.classList.add('active');
+                }
+            }
 
             // Update tab content
             document.querySelectorAll('.tab-content').forEach(content => {
@@ -852,7 +1080,8 @@ What is 2 + 2?
                                 easeFactor: 2.5,
                                 reviewCount: 0,
                                 correctCount: 0,
-                                masteryLevel: 0 // 0-5
+                                masteryLevel: 0, // 0-5
+                                folderId: selectedFolderId
                             });
                         }
                     }
@@ -866,7 +1095,9 @@ What is 2 + 2?
                 flashcards = flashcards.concat(cards);
                 saveToStorage();
 
-                showAlert(`Successfully created ${cards.length} flashcard${cards.length > 1 ? 's' : ''}!`, 'success');
+                const folderName = getFolderNameById(selectedFolderId);
+                const folderText = folderName ? ` in "${folderName}" folder` : '';
+                showAlert(`Successfully created ${cards.length} flashcard${cards.length > 1 ? 's' : ''}${folderText}!`, 'success');
                 document.getElementById('flashcardInput').value = '';
                 updateStatistics();
 
@@ -911,13 +1142,15 @@ What year did World War II end?
 
         // SESSION MANAGEMENT
 
-        function startSession(mode) {
+        function startSession(mode, options = {}) {
             if (flashcards.length === 0) {
                 showAlert('No flashcards available! Create some first.', 'error');
                 return;
             }
 
             let sessionCards = [];
+            let sessionFolderId = null;
+            let sessionFolderName = null;
 
             switch(mode) {
                 case 'all':
@@ -945,13 +1178,31 @@ What year did World War II end?
                 case 'shuffle':
                     sessionCards = [...flashcards].sort(() => Math.random() - 0.5);
                     break;
+                case 'folder':
+                    sessionFolderId = options.folderId || null;
+                    if (!sessionFolderId) {
+                        showAlert('No folder selected.', 'error');
+                        return;
+                    }
+                    sessionCards = flashcards.filter(card => card.folderId === sessionFolderId);
+                    if (sessionCards.length === 0) {
+                        showAlert('No cards found in the selected folder.', 'info');
+                        return;
+                    }
+                    sessionFolderName = options.folderName || getFolderNameById(sessionFolderId) || 'Selected Folder';
+                    break;
+                default:
+                    showAlert('Unknown study mode selected.', 'error');
+                    return;
             }
 
             currentSession = {
                 cards: sessionCards,
                 currentIndex: 0,
                 mode: mode,
-                startTime: new Date()
+                startTime: new Date(),
+                folderId: sessionFolderId,
+                folderName: sessionFolderName
             };
 
             document.getElementById('sessionStart').style.display = 'none';
@@ -961,11 +1212,66 @@ What year did World War II end?
             resetCardOrientation();
             displayCurrentCard();
             updateProgress();
+
+            if (mode === 'folder' && sessionFolderName) {
+                const total = sessionCards.length;
+                showAlert(`Studying folder "${sessionFolderName}" (${total} card${total === 1 ? '' : 's'}).`, 'info');
+            }
+        }
+
+        function startFolderStudy() {
+            if (!Array.isArray(flashcards) || flashcards.length === 0) {
+                showAlert('No flashcards available! Create some first.', 'error');
+                return;
+            }
+
+            if (!Array.isArray(folders) || folders.length === 0) {
+                showAlert('No folders available yet. Create a folder first.', 'info');
+                return;
+            }
+
+            const cardsByFolder = flashcards.reduce((acc, card) => {
+                if (!card || !card.folderId) {
+                    return acc;
+                }
+                acc[card.folderId] = (acc[card.folderId] || 0) + 1;
+                return acc;
+            }, {});
+
+            const availableFolders = folders
+                .filter(folder => cardsByFolder[folder.id])
+                .sort((a, b) => a.name.localeCompare(b.name));
+
+            if (availableFolders.length === 0) {
+                showAlert('No folders with cards found. Assign cards to folders first.', 'info');
+                return;
+            }
+
+            const folderList = availableFolders
+                .map((folder, index) => {
+                    const count = cardsByFolder[folder.id];
+                    return `${index + 1}. ${folder.name} (${count} card${count === 1 ? '' : 's'})`;
+                })
+                .join('\n');
+
+            const response = prompt(`Choose a folder to study:\n${folderList}\n\nEnter the number of the folder:`);
+            if (response === null) {
+                return;
+            }
+
+            const selection = parseInt(response.trim(), 10);
+            if (Number.isNaN(selection) || selection < 1 || selection > availableFolders.length) {
+                showAlert('Invalid folder selection.', 'error');
+                return;
+            }
+
+            const chosenFolder = availableFolders[selection - 1];
+            startSession('folder', { folderId: chosenFolder.id, folderName: chosenFolder.name });
         }
 
         function endSession() {
             if (confirm('Are you sure you want to end this session?')) {
-                currentSession = { cards: [], currentIndex: 0, mode: null, startTime: null };
+                currentSession = { cards: [], currentIndex: 0, mode: null, startTime: null, folderId: null, folderName: null };
                 document.getElementById('sessionStart').style.display = 'block';
                 document.getElementById('studyArea').style.display = 'none';
 
@@ -1215,7 +1521,9 @@ What year did World War II end?
             const data = {
                 flashcards: flashcards,
                 statistics: statistics,
-                version: '1.0'
+                folders: folders,
+                selectedFolderId: selectedFolderId,
+                version: '1.1'
             };
             localStorage.setItem('flashcardData', JSON.stringify(data));
         }
@@ -1225,13 +1533,37 @@ What year did World War II end?
             if (stored) {
                 try {
                     const data = JSON.parse(stored);
-                    flashcards = data.flashcards || [];
+                    flashcards = Array.isArray(data.flashcards) ? data.flashcards : [];
                     statistics = data.statistics || {
                         totalStudySessions: 0,
                         lastStudyDate: null,
                         studyStreak: 0,
                         cardsStudiedToday: 0
                     };
+                    folders = Array.isArray(data.folders)
+                        ? data.folders.filter(folder => folder && typeof folder.id === 'string' && typeof folder.name === 'string')
+                        : [];
+                    selectedFolderId = typeof data.selectedFolderId === 'string' ? data.selectedFolderId : null;
+
+                    const validFolderIds = new Set(folders.map(folder => folder.id));
+                    flashcards.forEach(card => {
+                        if (!card) {
+                            return;
+                        }
+
+                        if (typeof card.folderId === 'undefined') {
+                            card.folderId = null;
+                            return;
+                        }
+
+                        if (card.folderId !== null && !validFolderIds.has(card.folderId)) {
+                            card.folderId = null;
+                        }
+                    });
+
+                    if (selectedFolderId && !validFolderIds.has(selectedFolderId)) {
+                        selectedFolderId = null;
+                    }
                 } catch (error) {
                     console.error('Error loading data:', error);
                 }
@@ -1244,8 +1576,10 @@ What year did World War II end?
             const data = {
                 flashcards: flashcards,
                 statistics: statistics,
+                folders: folders,
+                selectedFolderId: selectedFolderId,
                 exportDate: new Date().toISOString(),
-                version: '1.0'
+                version: '1.1'
             };
 
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1263,7 +1597,9 @@ What year did World War II end?
             const data = {
                 flashcards: flashcards.map(card => ({
                     question: card.question,
-                    answer: card.answer
+                    answer: card.answer,
+                    folderId: card.folderId || null,
+                    folderName: getFolderNameById(card.folderId)
                 })),
                 exportDate: new Date().toISOString()
             };
@@ -1291,8 +1627,14 @@ What year did World War II end?
                     if (data.flashcards) {
                         // Full backup import
                         if (confirm('Import this data? This will replace your current flashcards and statistics.')) {
-                            flashcards = data.flashcards;
+                            flashcards = Array.isArray(data.flashcards) ? data.flashcards : [];
                             statistics = data.statistics || statistics;
+                            folders = Array.isArray(data.folders)
+                                ? data.folders.filter(folder => folder && typeof folder.id === 'string' && typeof folder.name === 'string')
+                                : [];
+                            selectedFolderId = typeof data.selectedFolderId === 'string' ? data.selectedFolderId : null;
+                            ensureFolderConsistency();
+                            renderFolderOptions();
                             saveToStorage();
                             updateStatistics();
                             showAlert('Data imported successfully!', 'success');
@@ -1320,6 +1662,9 @@ What year did World War II end?
                         studyStreak: 0,
                         cardsStudiedToday: 0
                     };
+                    folders = [];
+                    selectedFolderId = null;
+                    renderFolderOptions();
                     saveToStorage();
                     updateStatistics();
                     showAlert('All data has been reset.', 'success');
