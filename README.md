@@ -1,2 +1,2 @@
-# flashcardgenerator
-making for my board exams ;) , wont work independently, you will need to format text using any ai and formatting rules on site
+Developed for my own board exam revision ;)
+The tool depends on pre-formatted inputs and does not include an autonomous text-processing module.
